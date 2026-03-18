@@ -1,7 +1,14 @@
 {
-  "editor.codeActionsOnSave": {
-    "source.fixAll": "explicit",
-    "source.organizeImports": "explicit",
-    "source.sortMembers": "explicit"
-  }
+	"editor.codeActionsOnSave": {
+		"source.fixAll": "explicit",
+		"source.organizeImports": "explicit",
+		"source.sortMembers": "explicit"
+	},
+	"[markdown]": {
+		"editor.formatOnSave": false,
+		"files.trimTrailingWhitespace": false
+	},
+	"markdownlint.config": {
+		"MD009": false
+	}
 }
