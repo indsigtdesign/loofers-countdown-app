@@ -1,45 +1,68 @@
 import { StyleSheet, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
+import { Colors, Radii, Spacing } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { formatCountdown, getSecondsRemaining } from '@/src/shared/utils/time';
 import { useCountdownStore } from '@/src/store/countdownStore';
 
 export const GlobalCountdownBanner = () => {
 	const closest = useCountdownStore((s) => s.getClosestExpiring());
 	const now = useCountdownStore((s) => s.now);
+	const colorScheme = useColorScheme();
+	const theme = Colors[colorScheme ?? 'light'];
 
 	if (!closest) return null;
 
 	const seconds = getSecondsRemaining(closest.expiresAt, now);
 
 	return (
-		<View style={styles.banner}>
-			<ThemedText style={styles.label}>Next expiry</ThemedText>
-			<ThemedText style={styles.time}>
-				{formatCountdown(seconds)}
-			</ThemedText>
-		</View>
+		<Animated.View entering={FadeInDown.duration(320)}>
+			<ThemedView
+				accessible
+				accessibilityLabel={`Closest countdown expires in ${formatCountdown(seconds)}`}
+				variant="glass"
+				elevated
+				style={[styles.wrap, { borderColor: theme.border }]}
+			>
+				<View style={styles.info}>
+					<ThemedText style={styles.label} tone="muted">
+						Upcoming countdown
+					</ThemedText>
+					<ThemedText type="mono" style={styles.time}>
+						{formatCountdown(seconds)}
+					</ThemedText>
+				</View>
+			</ThemedView>
+		</Animated.View>
 	);
 };
 
 const styles = StyleSheet.create({
-	banner: {
+	wrap: {
 		flexDirection: 'row',
-		justifyContent: 'space-between',
 		alignItems: 'center',
-		paddingHorizontal: 16,
-		paddingVertical: 10,
-		marginBottom: 8,
-		backgroundColor: '#0a7ea4',
+		paddingVertical: Spacing.sm,
+		paddingHorizontal: Spacing.md,
+		marginHorizontal: Spacing.sm,
+		marginBottom: Spacing.sm,
+		borderRadius: Radii.md,
+		borderWidth: 1,
 	},
-	label: {
-		color: '#ffffff',
-		fontSize: 14,
+	info: {
+		flex: 1,
+		gap: 4,
 	},
 	time: {
-		color: '#ffffff',
-		fontSize: 18,
-		fontWeight: '700',
+		fontSize: 30,
+		lineHeight: 36,
 		fontVariant: ['tabular-nums'],
+		letterSpacing: -0.8,
+		textAlign: 'right',
+	},
+	label: {
+		fontSize: 13,
 	},
 });

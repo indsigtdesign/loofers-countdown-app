@@ -1,33 +1,56 @@
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { Colors, Radii, Spacing } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { CountdownRow } from '@/src/features/countdowns/components/CountdownRow';
 import { useCountdownStore } from '@/src/store/countdownStore';
 
 export const CountdownsScreen = () => {
 	const entries = useCountdownStore((s) => s.entries);
+	const colorScheme = useColorScheme();
+	const theme = Colors[colorScheme ?? 'light'];
 
 	return (
-		<ThemedView style={styles.container}>
-			<View style={styles.header}>
+		<ThemedView style={styles.container} variant="background">
+			<Animated.View
+				entering={FadeInDown.duration(320)}
+				style={styles.header}
+			>
+				<ThemedText type="eyebrow" tone="muted">
+					Live timers
+				</ThemedText>
 				<ThemedText type="title">Countdowns</ThemedText>
-			</View>
+			</Animated.View>
 
 			{entries.length === 0 ? (
-				<View style={styles.empty}>
+				<Animated.View
+					entering={FadeInDown.delay(120).duration(360)}
+					style={[
+						styles.empty,
+						{
+							borderColor: theme.border,
+							backgroundColor: theme.surface,
+						},
+					]}
+				>
 					<ThemedText type="subtitle">
 						No active countdowns
 					</ThemedText>
-					<ThemedText style={styles.emptyText}>
-						Start a timer in Configure and it will appear here.
+					<ThemedText style={styles.emptyText} tone="muted">
+						Start a timer in Create and it will appear here.
 					</ThemedText>
-				</View>
+				</Animated.View>
 			) : (
 				<FlatList
 					data={entries}
 					keyExtractor={(item) => item.id}
-					renderItem={({ item }) => <CountdownRow entry={item} />}
+					contentContainerStyle={styles.listContent}
+					renderItem={({ item, index }) => (
+						<CountdownRow entry={item} index={index} />
+					)}
 				/>
 			)}
 		</ThemedView>
@@ -37,19 +60,29 @@ export const CountdownsScreen = () => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+		paddingHorizontal: Spacing.md,
+		paddingTop: Spacing.sm,
 	},
 	header: {
-		paddingHorizontal: 16,
-		paddingBottom: 8,
+		paddingBottom: Spacing.sm,
+		gap: Spacing.xs,
 	},
 	empty: {
 		flex: 1,
 		alignItems: 'center',
 		justifyContent: 'center',
+		borderWidth: 1,
+		borderRadius: Radii.lg,
+		paddingHorizontal: Spacing.lg,
+		marginBottom: 90,
+		gap: Spacing.xs,
 	},
 	emptyText: {
 		textAlign: 'center',
-		opacity: 0.5,
 		maxWidth: 260,
+	},
+	listContent: {
+		paddingBottom: 90,
+		gap: Spacing.sm,
 	},
 });

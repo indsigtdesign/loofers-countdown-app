@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -8,7 +8,6 @@ import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { GlobalCountdownBanner } from '@/src/shared/components/GlobalCountdownBanner';
 import { useCountdownTick } from '@/src/shared/hooks/useCountdownTick';
-import { useCountdownStore } from '@/src/store/countdownStore';
 
 export const unstable_settings = {
 	anchor: '(tabs)',
@@ -17,14 +16,14 @@ export const unstable_settings = {
 export default function RootLayout() {
 	const colorScheme = useColorScheme();
 	useCountdownTick();
-	const hasEntries = useCountdownStore((s) => s.entries.length > 0);
 	const theme = Colors[colorScheme ?? 'light'];
+	const statusBarStyle = colorScheme === 'dark' ? 'light' : 'dark';
 
 	return (
-		<View style={{ flex: 1 }}>
+		<View style={[styles.container, { backgroundColor: theme.background }]}>
 			<SafeAreaView
 				style={{
-					backgroundColor: hasEntries ? theme.tint : theme.background,
+					backgroundColor: theme.background,
 				}}
 				edges={['top']}
 			/>
@@ -35,12 +34,14 @@ export default function RootLayout() {
 				}}
 			>
 				<Stack.Screen name="(tabs)" />
-				<Stack.Screen
-					name="modal"
-					options={{ presentation: 'modal', title: 'Modal' }}
-				/>
 			</Stack>
-			<StatusBar style="auto" />
+			<StatusBar style={statusBarStyle} />
 		</View>
 	);
 }
+
+const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+	},
+});

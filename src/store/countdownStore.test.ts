@@ -57,6 +57,30 @@ describe('countdownStore', () => {
 		expect(useCountdownStore.getState().entries).toEqual([active]);
 	});
 
+	it('sorts entries by the soonest expiry when adding', () => {
+		const later = createEntry('later', '2026-03-18T10:12:00.000Z');
+		const earlier = createEntry('earlier', '2026-03-18T10:04:00.000Z');
+
+		useCountdownStore.getState().addEntry(later);
+		useCountdownStore.getState().addEntry(earlier);
+
+		expect(useCountdownStore.getState().entries).toEqual([earlier, later]);
+	});
+
+	it('tick preserves the entries array when nothing has expired', () => {
+		const active = createEntry('active', '2026-03-18T10:05:00.000Z');
+		useCountdownStore.setState((state) => ({
+			...state,
+			entries: [active],
+		}));
+
+		const previousEntries = useCountdownStore.getState().entries;
+
+		useCountdownStore.getState().tick(new Date('2026-03-18T10:00:01.000Z'));
+
+		expect(useCountdownStore.getState().entries).toBe(previousEntries);
+	});
+
 	it('getClosestExpiring returns the earliest future entry', () => {
 		const expired = createEntry('expired', '2026-03-18T09:59:59.000Z');
 		const later = createEntry('later', '2026-03-18T10:09:00.000Z');

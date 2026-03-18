@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 
+import { startCountdownFlow } from '@/src/features/configuration/startCountdown';
 import { requestCountdown } from '@/src/services/countdownService';
 import { useCountdownStore } from '@/src/store/countdownStore';
 
@@ -13,8 +14,10 @@ export const useStartCountdown = () => {
 			setLoading(true);
 			setError(null);
 			try {
-				const entry = await requestCountdown(date);
-				addEntry(entry);
+				await startCountdownFlow(date, {
+					requestCountdown,
+					addEntry,
+				});
 			} catch {
 				setError('Could not start the countdown. Please try again.');
 			} finally {

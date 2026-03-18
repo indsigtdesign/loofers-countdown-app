@@ -1,8 +1,11 @@
-import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { Colors, Radii, Shadows, Spacing } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { DateTimeField } from '@/src/features/configuration/components/DateTimeField';
 import { useStartCountdown } from '@/src/features/configuration/hooks/useStartCountdown';
 
@@ -12,26 +15,13 @@ export const ConfigScreen = () => {
 	);
 	const [spinning, setSpinning] = useState(false);
 	const { start, loading, error } = useStartCountdown();
+	const colorScheme = useColorScheme();
+	const theme = Colors[colorScheme ?? 'light'];
 
 	const handleDateChange = (date: Date) => {
 		const minimumDate = new Date();
 		setSelectedDate(date < minimumDate ? minimumDate : date);
 	};
-
-	const formattedDuration = useMemo(() => {
-		const diff = Math.max(
-			0,
-			Math.floor((selectedDate.getTime() - Date.now()) / 1000),
-		);
-		const days = Math.floor(diff / 86400);
-		const hours = Math.floor((diff % 86400) / 3600);
-		const minutes = Math.floor((diff % 3600) / 60);
-		const pad = (n: number) => String(n).padStart(2, '0');
-
-		if (days > 0) return `${days}d ${pad(hours)}h ${pad(minutes)}m`;
-		if (hours > 0) return `${hours}h ${pad(minutes)}m`;
-		return `${minutes}m`;
-	}, [selectedDate]);
 
 	const buttonDisabled = loading || spinning;
 
@@ -40,39 +30,70 @@ export const ConfigScreen = () => {
 	};
 
 	return (
-		<ThemedView style={styles.container}>
-			<View style={styles.header}>
-				<ThemedText type="title">Configure</ThemedText>
-				<ThemedText>Pick date and time, then start.</ThemedText>
-			</View>
+		<ThemedView style={styles.container} variant="background">
+			<Animated.View
+				entering={FadeInDown.duration(320)}
+				style={styles.header}
+			>
+				<ThemedText type="eyebrow" tone="muted">
+					Countdown setup
+				</ThemedText>
+				<ThemedText type="title">Create</ThemedText>
+				<ThemedText tone="muted">
+					Choose a target date and launch a timer.
+				</ThemedText>
+			</Animated.View>
 
-			<DateTimeField
-				value={selectedDate}
-				onChange={handleDateChange}
-				onSpinningChange={setSpinning}
-			/>
+			<Animated.View entering={FadeInDown.delay(120).duration(360)}>
+				<DateTimeField
+					value={selectedDate}
+					onChange={handleDateChange}
+					onSpinningChange={setSpinning}
+				/>
+			</Animated.View>
 
-			<View style={styles.footer}>
+			<Animated.View
+				entering={FadeInDown.delay(180).duration(360)}
+				style={styles.footer}
+			>
 				{error ? (
-					<ThemedText style={styles.errorText}>{error}</ThemedText>
+					<ThemedText
+						tone="danger"
+						type="bodySm"
+						style={styles.errorText}
+					>
+						{error}
+					</ThemedText>
 				) : null}
 				<Pressable
+					accessibilityRole="button"
+					accessibilityLabel="Start countdown"
+					accessibilityHint="Creates a countdown using the selected date and time"
 					onPress={handleStart}
 					disabled={buttonDisabled}
-					style={[
+					style={({ pressed }) => [
 						styles.button,
+						{
+							backgroundColor: theme.accent,
+							borderColor: theme.accentStrong,
+							transform: [{ scale: pressed ? 0.98 : 1 }],
+						},
 						buttonDisabled && styles.buttonDisabled,
 					]}
 				>
 					{loading ? (
-						<ActivityIndicator color="#ffffff" />
+						<ActivityIndicator color={theme.textInverted} />
 					) : (
-						<ThemedText style={styles.buttonText}>
-							Start {formattedDuration} timer
+						<ThemedText
+							type="button"
+							tone="inverted"
+							style={styles.buttonText}
+						>
+							Start Countdown
 						</ThemedText>
 					)}
 				</Pressable>
-			</View>
+			</Animated.View>
 		</ThemedView>
 	);
 };
@@ -80,31 +101,33 @@ export const ConfigScreen = () => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		paddingHorizontal: 16,
-		paddingBottom: 20,
-		gap: 16,
+		paddingHorizontal: Spacing.md,
+		paddingBottom: Spacing.lg,
+		paddingTop: Spacing.sm,
+		gap: Spacing.md,
 	},
 	header: {
-		gap: 8,
+		paddingBottom: Spacing.sm,
+		gap: Spacing.xs,
 	},
 	footer: {
-		gap: 12,
+		gap: Spacing.sm,
 	},
 	errorText: {
-		color: '#b42318',
+		paddingHorizontal: Spacing.xs,
 	},
 	button: {
-		height: 48,
-		borderRadius: 10,
-		backgroundColor: '#0a7ea4',
+		height: 54,
+		borderRadius: Radii.md,
+		borderWidth: 1,
 		alignItems: 'center',
 		justifyContent: 'center',
+		...Shadows.soft,
 	},
 	buttonDisabled: {
-		opacity: 0.6,
+		opacity: 0.55,
 	},
 	buttonText: {
-		color: '#ffffff',
-		fontWeight: '700',
+		textAlign: 'center',
 	},
 });
