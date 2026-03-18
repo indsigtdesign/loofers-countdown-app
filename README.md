@@ -1,8 +1,8 @@
 # Advanced Countdown App - Loofers React Native Test Case
 
-Session 1: 06:52 to 08:46, architecture and initial implementation.
-Session 2: 11:13 to 13:05, cross-platform picker and state flow.
-Session 3: 14:52 to 15:54, tests, bug fixes, polish.
+Session 1: 06:52 to 08:46, architecture and initial implementation.  
+Session 2: 11:13 to 13:05, cross-platform picker and state flow.  
+Session 3: 14:52 to 15:54, tests, bug fixes, polish.  
 Session 4: 20:30 to 21:45, final hardening, requirement validation, and delivery prep.
 
 ---
